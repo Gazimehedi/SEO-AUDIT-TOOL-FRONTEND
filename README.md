@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SEO Tool Frontend
 
-## Getting Started
+A premium, high-performance dashboard for SEO professionals. Built with a focus on speed, clarity, and advanced data visualization.
 
-First, run the development server:
+## ✨ Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Dynamic Audits**: Real-time progress tracking with WebSockets.
+- **AI Intelligence**: Strategic insights and content optimization recommendations.
+- **Advanced Reports**: Professional-grade PDF and advanced strategic report views.
+- **Premium Aesthetics**: Glassmorphic UI with dark mode and smooth animations.
+- **SEO Assistant**: Integrated AI chatbot for deep dive audit analysis.
+- **History & Projects**: Manage multiple properties and track score improvements over time.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **State**: React Hooks + Context
+- **Real-time**: Socket.io-client
+- **Auth**: NextAuth.js
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Getting Started
 
-## Learn More
+### Prerequisites
 
-To learn more about Next.js, take a look at the following resources:
+- Node.js 18+
+- Backend server running (default: port 5000)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Installation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-## Deploy on Vercel
+2. Configure environment variables (`.env.local`):
+   ```env
+   NEXT_PUBLIC_API_URL="http://localhost:5000"
+   NEXTAUTH_SECRET="your_shared_secret"
+   NEXTAUTH_URL="http://localhost:3000"
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. Start Development Server:
+   ```bash
+   npm run dev
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🏗️ Structure
+
+- `src/app/audit/[jobId]`: Main audit results and real-time dashboard.
+- `src/app/audit/[jobId]/report`: Specialized report formats (Basic & Advanced).
+- `src/components`: Reusable UI components (Issue cards, charts, Navbar, etc.)
+- `src/app/projects`: Multi-site management system.
+
+## 📄 License
+
+Proprietary — All Rights Reserved.
