@@ -40,6 +40,9 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
             transports: ['polling', 'websocket']
         });
 
+        socket.emit('join-job', jobId);
+
+
         // Fetch initial state in case job is already running or complete
         fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/audit/${jobId}`)
             .then(res => res.json())

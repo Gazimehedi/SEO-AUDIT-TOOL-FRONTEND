@@ -159,11 +159,11 @@ export default function ProjectsPage() {
                                 <div className="grid grid-cols-2 gap-2 mt-auto mb-4">
                                     <div className="bg-slate-950/60 border border-white/[0.04] rounded-xl p-3">
                                         <p className="text-[8px] font-black uppercase tracking-widest text-slate-600 mb-1">Audits</p>
-                                        <p className="text-xl font-black">{project._count.audits}</p>
+                                        <p className="text-xl font-black">{project?._count?.audits || 0}</p>
                                     </div>
                                     <div className="bg-slate-950/60 border border-white/[0.04] rounded-xl p-3">
                                         <p className="text-[8px] font-black uppercase tracking-widest text-slate-600 mb-1">Monitored</p>
-                                        <p className="text-xl font-black">{project._count.monitoredSites}</p>
+                                        <p className="text-xl font-black">{project?._count?.monitoredSites || 0}</p>
                                     </div>
                                 </div>
 
