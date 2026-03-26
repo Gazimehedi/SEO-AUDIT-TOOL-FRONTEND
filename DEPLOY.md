@@ -26,11 +26,18 @@ NEXTAUTH_SECRET="a_secure_random_string"
    ```
    *Our build script automatically copies the static assets and public folder into the `.next/standalone` directory for minimal footprint.*
 
-3. **Run with PM2**:
+3. **Install PM2 & Run**:
+   If `pm2` is not installed on your VPS, install it globally:
    ```bash
-   pm2 start ecosystem.config.js
-   pm2 save
+   npm install -g pm2
    ```
+
+   Start the frontend:
+   ```bash
+   npx pm2 start ecosystem.config.js
+   npx pm2 save
+   ```
+   *Note: Using `npx pm2` ensures the command works even if the global binary path isn't in your server's current $PATH.*
 
 ## Deployment Steps (Vercel / Netlify)
 

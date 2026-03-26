@@ -324,8 +324,13 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
         );
     }
 
-    const { results, score } = data;
-    const { title, description, issues, performanceScore } = results;
+    const { results, score, status } = data;
+    const { 
+        title = data.url || 'Audit Report', 
+        description = '', 
+        issues = [], 
+        performanceScore = score || 0 
+    } = results || {};
 
     const criticals = issues.filter((i: any) => i.severity === 'Critical');
     const warnings = issues.filter((i: any) => i.severity === 'Warning');
