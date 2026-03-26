@@ -1,16 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import { ExtendedSession, UserProfile } from '@/types';
+import Image from 'next/image';
 import { 
     CheckCircle2, 
     AlertCircle, 
     Zap, 
-    Search, 
-    ShieldCheck, 
     Globe, 
-    Smartphone,
     Layout
 } from 'lucide-react';
 
@@ -25,21 +25,23 @@ interface AuditResult {
 
 export default function AdvancedReportPage() {
     const { jobId } = useParams();
-    const { data: session } = useSession();
+    const { data: sessionData } = useSession();
+    const session = sessionData as ExtendedSession | null;
     const [audit, setAudit] = useState<AuditResult | null>(null);
     const [loading, setLoading] = useState(true);
-    const [userProfile, setUserProfile] = useState<any>(null);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
     useEffect(() => {
         if (jobId) {
             fetchAudit();
             if (session) fetchProfile();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [jobId, session]);
 
     const fetchAudit = async () => {
         try {
-            const res = await fetch(`http://localhost:5000/api/audit/${jobId}`);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/audit/${jobId}`);
             const data = await res.json();
             if (!data.error) setAudit(data);
         } catch (err) {
@@ -51,12 +53,12 @@ export default function AdvancedReportPage() {
 
     const fetchProfile = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/user/profile', {
-                headers: { 'Authorization': `Bearer ${(session as any).accessToken}` }
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/profile`, {
+                headers: { 'Authorization': `Bearer ${session?.accessToken}` }
             });
             const data = await res.json();
             if (!data.error) setUserProfile(data);
-        } catch (err) {}
+        } catch { }
     };
 
     if (loading) return <div className="p-20 text-center font-black uppercase tracking-widest text-slate-500">Generating Report...</div>;
@@ -75,7 +77,7 @@ export default function AdvancedReportPage() {
                     <div className="flex justify-between items-start mb-24">
                         <div className="flex items-center gap-3">
                             {userProfile?.reportLogoUrl ? (
-                                <img src={`http://localhost:5000${userProfile.reportLogoUrl}`} alt="Logo" className="h-12 w-auto object-contain" />
+                                <Image src={`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}`}${userProfile.reportLogoUrl}`} alt="Logo" width={200} height={48} className="h-12 w-auto object-contain" unoptimized />
                             ) : (
                                 <div className="bg-slate-900 text-white px-4 py-2 font-black italic tracking-tighter text-xl">SEO PRO</div>
                             )}

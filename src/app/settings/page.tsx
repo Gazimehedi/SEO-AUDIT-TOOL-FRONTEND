@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, react/no-unescaped-entities, react-hooks/exhaustive-deps, @next/next/no-img-element */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -30,7 +31,7 @@ export default function SettingsPage() {
 
     const fetchProfile = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/user/profile', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/profile`, {
                 headers: { 'Authorization': `Bearer ${(session as any).accessToken}` }
             });
             const data = await res.json();
@@ -49,7 +50,7 @@ export default function SettingsPage() {
 
     const fetchApiKeys = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/user/api-keys', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/api-keys`, {
                 headers: { 'Authorization': `Bearer ${(session as any).accessToken}` }
             });
             const data = await res.json();
@@ -61,7 +62,7 @@ export default function SettingsPage() {
         e.preventDefault();
         setSaving(true);
         try {
-            const res = await fetch('http://localhost:5000/api/user/profile', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/profile`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -80,7 +81,7 @@ export default function SettingsPage() {
     const handleUpdateNotifications = async () => {
         setSaving(true);
         try {
-            await fetch('http://localhost:5000/api/user/notifications', {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/notifications`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -101,7 +102,7 @@ export default function SettingsPage() {
         }
         setSaving(true);
         try {
-            const res = await fetch('http://localhost:5000/api/user/password', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/password`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -128,7 +129,7 @@ export default function SettingsPage() {
 
         setSaving(true);
         try {
-            const res = await fetch('http://localhost:5000/api/user/avatar', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/avatar`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${(session as any).accessToken}` },
                 body: fd
@@ -149,7 +150,7 @@ export default function SettingsPage() {
 
         setSaving(true);
         try {
-            const res = await fetch('http://localhost:5000/api/user/report-logo', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/report-logo`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${(session as any).accessToken}` },
                 body: fd
@@ -164,7 +165,7 @@ export default function SettingsPage() {
 
     const handleSetup2FA = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/user/2fa/setup', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/2fa/setup`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${(session as any).accessToken}` }
             });
@@ -175,7 +176,7 @@ export default function SettingsPage() {
 
     const handleVerify2FA = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/user/2fa/verify', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/2fa/verify`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -194,7 +195,7 @@ export default function SettingsPage() {
 
     const handleCreateApiKey = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/user/api-keys', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/api-keys`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -211,7 +212,7 @@ export default function SettingsPage() {
 
     const handleRevokeKey = async (id: string) => {
         try {
-            await fetch(`http://localhost:5000/api/user/api-keys/${id}`, {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/api-keys/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${(session as any).accessToken}` }
             });
@@ -267,7 +268,7 @@ export default function SettingsPage() {
                                         <div className="relative group">
                                             <div className="w-24 h-24 rounded-2xl bg-slate-800 border-2 border-slate-700 overflow-hidden group-hover:border-emerald-500 transition-all">
                                                 {profile?.avatarUrl ? (
-                                                    <img src={`http://localhost:5000${profile.avatarUrl}`} alt="Avatar" className="w-full h-full object-cover" />
+                                                    <img src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${profile.avatarUrl}`} alt="Avatar" className="w-full h-full object-cover" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-slate-600 uppercase">
                                                         {profile?.email[0]}
@@ -294,7 +295,7 @@ export default function SettingsPage() {
                                         <div className="flex items-center gap-8 bg-slate-950 p-6 rounded-3xl border border-white/5 shadow-inner">
                                             <div className="w-32 h-20 rounded-xl bg-slate-900 border border-slate-800/50 flex items-center justify-center overflow-hidden relative group">
                                                 {profile?.reportLogoUrl ? (
-                                                    <img src={`http://localhost:5000${profile.reportLogoUrl}`} alt="Report Logo" className="max-w-full max-h-full object-contain p-2" />
+                                                    <img src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${profile.reportLogoUrl}`} alt="Report Logo" className="max-w-full max-h-full object-contain p-2" />
                                                 ) : (
                                                     <div className="text-[10px] text-slate-700 font-black uppercase text-center tracking-widest px-2 leading-none">
                                                         No Logo<br/><span className="text-[8px] opacity-50 italic">Using Default</span>

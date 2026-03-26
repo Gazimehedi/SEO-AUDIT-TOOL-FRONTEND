@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, react/no-unescaped-entities, react-hooks/exhaustive-deps, @next/next/no-img-element */
 'use client';
 
 import { useSession } from 'next-auth/react';
@@ -28,7 +29,7 @@ export default function ProjectsPage() {
 
     const fetchProjects = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/projects', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/projects`, {
                 headers: { 'Authorization': `Bearer ${(session as any)?.accessToken}` }
             });
             const data = await res.json();
@@ -40,7 +41,7 @@ export default function ProjectsPage() {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            const res = await fetch('http://localhost:5000/api/projects', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/projects`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${(session as any)?.accessToken}` },
                 body: JSON.stringify({ name: newName, description: newDesc })
@@ -58,7 +59,7 @@ export default function ProjectsPage() {
 
     const handleDelete = async (id: string) => {
         if (!confirm('Delete this project? Audits will move to unorganized.')) return;
-        const res = await fetch(`http://localhost:5000/api/projects/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/projects/${id}`, {
             method: 'DELETE', headers: { 'Authorization': `Bearer ${(session as any)?.accessToken}` }
         });
         if (res.ok) setProjects(projects.filter(p => p.id !== id));

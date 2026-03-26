@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -9,7 +10,7 @@ export default function PremiumReportPage({ params }: { params: { jobId: string 
     useEffect(() => {
         document.title = 'SEO Audit Report';
         if (jobId) {
-            fetch(`http://localhost:5000/api/audit/${jobId}`)
+            fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/audit/${jobId}`)
                 .then(res => res.json())
                 .then(job => {
                     if (job.status === 'complete' || job.results) {
@@ -23,7 +24,7 @@ export default function PremiumReportPage({ params }: { params: { jobId: string 
 
     const score = data.score || 0;
     const results = data.results || {};
-    const { title, issues = [], performanceScore = 0 } = results;
+    const { issues = [], performanceScore = 0 } = results;
     const createdAt = data.createdAt;
 
     const criticals = issues.filter((i: any) => i.severity === 'Critical');

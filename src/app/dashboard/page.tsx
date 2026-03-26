@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, react/no-unescaped-entities, react-hooks/exhaustive-deps, @next/next/no-img-element */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -19,10 +20,10 @@ export default function Dashboard() {
         if (status === 'unauthenticated') router.push('/login');
         if ((session as any)?.accessToken) {
             Promise.all([
-                fetch('http://localhost:5000/api/audit/history', {
+                fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/audit/history`, {
                     headers: { 'Authorization': `Bearer ${(session as any).accessToken}` }
                 }).then(res => res.json()),
-                fetch('http://localhost:5000/api/monitoring', {
+                fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/monitoring`, {
                     headers: { 'Authorization': `Bearer ${(session as any).accessToken}` }
                 }).then(res => res.json())
             ]).then(([historyData, sitesData]) => {

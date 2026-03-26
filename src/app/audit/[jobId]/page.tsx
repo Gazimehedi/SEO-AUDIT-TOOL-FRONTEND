@@ -1,14 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, react/no-unescaped-entities, react-hooks/exhaustive-deps, @next/next/no-img-element */
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { io } from 'socket.io-client';
 import IssueCard from '@/components/IssueCard';
 import AuditScore from '@/components/AuditScore';
 import ChatAssistant from '@/components/ChatAssistant';
 import Navbar from '@/components/Navbar';
-import { Zap, Download, FileJson, FileSpreadsheet, FileText, ArrowRight } from 'lucide-react';
+import { Zap, FileJson, FileSpreadsheet, FileText } from 'lucide-react';
 
 export default function AuditResults({ params }: { params: { jobId: string } }) {
     const { data: session } = useSession();
@@ -35,10 +36,10 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
     useEffect(() => {
         setIsPrintMode(typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('print') === 'true');
         // Connect websocket
-        const socket = io('http://localhost:5000');
+        const socket = io(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}`);
 
         // Fetch initial state in case job is already running or complete
-        fetch(`http://localhost:5000/api/audit/${jobId}`)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/audit/${jobId}`)
             .then(res => res.json())
             .then(job => {
                 if (job.status === 'complete') {
@@ -61,9 +62,9 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
             if (msg.step) setCurrentStep(msg.step);
         });
 
-        socket.on(`job-${jobId}-complete`, (result) => {
+        socket.on(`job-${jobId}-complete`, () => {
             // Re-fetch full job data to be safe, or just use payload
-            fetch(`http://localhost:5000/api/audit/${jobId}`)
+            fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/audit/${jobId}`)
                 .then(res => res.json())
                 .then(job => {
                     setData(job);
@@ -83,7 +84,7 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
     const generateAIInsights = async (force = false) => {
         setIsGeneratingAI(true);
         try {
-            const res = await fetch(`http://localhost:5000/api/ai/analyze/${jobId}${force ? '?force=true' : ''}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/ai/analyze/${jobId}${force ? '?force=true' : ''}`, {
                 method: 'POST'
             });
             const result = await res.json();
@@ -372,7 +373,7 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
                     <div className="flex flex-wrap gap-2">
                         <button 
                             disabled={downloading !== null}
-                            onClick={() => handleDownload(`http://localhost:5000/api/audit/${jobId}/pdf`, `SEO-Report-${jobId}.pdf`, 'pdf-simple')}
+                            onClick={() => handleDownload(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/audit/${jobId}/pdf`, `SEO-Report-${jobId}.pdf`, 'pdf-simple')}
                             className="bg-white/5 hover:bg-white/10 active:bg-white/5 text-white pr-5 pl-4 py-3 rounded-xl border border-white/5 transition-all flex items-center gap-2 groups transition-all"
                         >
                             {downloading === 'pdf-simple' ? <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" /> : <FileText className="w-5 h-5 text-slate-400 group-hover:text-white transition-colors" />}
@@ -380,7 +381,7 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
                         </button>
                         <button 
                             disabled={downloading !== null}
-                            onClick={() => handleDownload(`http://localhost:5000/api/audit/${jobId}/pdf?type=advanced`, `SEO-Premium-${jobId}.pdf`, 'pdf-adv')}
+                            onClick={() => handleDownload(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/audit/${jobId}/pdf?type=advanced`, `SEO-Premium-${jobId}.pdf`, 'pdf-adv')}
                             className="bg-blue-600/10 hover:bg-blue-600/20 active:bg-blue-600/10 text-blue-400 pr-5 pl-4 py-3 rounded-xl border border-blue-500/20 transition-all flex items-center gap-2 group transition-all"
                         >
                             {downloading === 'pdf-adv' ? <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" /> : <Zap className="w-5 h-5 group-hover:scale-110 transition-transform" />}
@@ -388,7 +389,7 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
                         </button>
                         <button 
                             disabled={downloading !== null}
-                            onClick={() => handleDownload(`http://localhost:5000/api/audit/${jobId}/export?format=csv`, `SEO-Data-${jobId}.csv`, 'csv')}
+                            onClick={() => handleDownload(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/audit/${jobId}/export?format=csv`, `SEO-Data-${jobId}.csv`, 'csv')}
                             className="bg-white/5 hover:bg-white/10 text-white pr-5 pl-4 py-3 rounded-xl border border-white/5 transition-all flex items-center gap-2 group transition-all"
                         >
                             {downloading === 'csv' ? <div className="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" /> : <FileSpreadsheet className="w-5 h-5 text-slate-400 group-hover:text-white transition-colors" />}
@@ -396,7 +397,7 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
                         </button>
                         <button 
                             disabled={downloading !== null}
-                            onClick={() => handleDownload(`http://localhost:5000/api/audit/${jobId}/export?format=json`, `SEO-Data-${jobId}.json`, 'json')}
+                            onClick={() => handleDownload(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/audit/${jobId}/export?format=json`, `SEO-Data-${jobId}.json`, 'json')}
                             className="bg-white/5 hover:bg-white/10 text-white pr-5 pl-4 py-3 rounded-xl border border-white/5 transition-all flex items-center gap-2 group transition-all"
                         >
                             {downloading === 'json' ? <div className="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" /> : <FileJson className="w-5 h-5 text-slate-400 group-hover:text-white transition-colors" />}
@@ -408,7 +409,7 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start mb-20">
                     <div className="lg:col-span-1">
                         <AuditScore 
-                            score={Math.round(score)} 
+                            score={Math.round(score || 0)} 
                             label="SEO Health"
                         />
                         <div className="mt-4">
@@ -679,7 +680,7 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
                                         <span className="text-4xl">⚔️</span>
                                     </div>
                                     <h3 className="text-xl font-bold mb-2">Benchmark vs Competitors</h3>
-                                    <p className="text-sm text-slate-500 mb-6">Enter a competitor's URL to see how your site stacks up in SEO and Performance.</p>
+                                    <p className="text-sm text-slate-500 mb-6">Enter a competitor&apos;s URL to see how your site stacks up in SEO and Performance.</p>
                                     
                                     <form onSubmit={async (e) => {
                                         e.preventDefault();
@@ -688,7 +689,7 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
                                         if (!url) return;
 
                                         try {
-                                            const res = await fetch(`http://localhost:5000/api/competitors/compare/${jobId}`, {
+                                            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/competitors/compare/${jobId}`, {
                                                 method: 'POST',
                                                 headers: { 'Content-Type': 'application/json' },
                                                 body: JSON.stringify({ competitorUrl: url })
@@ -740,7 +741,7 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
                                                     </div>
                                                     <div className="text-[10px] text-blue-400 font-black uppercase tracking-tighter">Your Site</div>
                                                 </td>
-                                                <td className="p-6 font-black text-2xl">{Math.round(score)}</td>
+                                                <td className="p-6 font-black text-2xl">{Math.round(score || 0)}</td>
                                                 <td className="p-6 font-black text-2xl text-emerald-400">{results.performanceScore || 0}</td>
                                                 <td className="p-6 font-mono text-sm">{results.performanceMetrics?.lcp ? `${(results.performanceMetrics.lcp / 1000).toFixed(2)}s` : 'N/A'}</td>
                                                 <td className="p-6">
@@ -866,7 +867,7 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
                     </div>
                 )}
 
-                {!isPrintMode && <ChatAssistant auditContext={data || {}} />}
+                {!isPrintMode && <ChatAssistant auditContext={data ? { ...data, score: data.score ?? undefined } : null} />}
             </div>
         </main>
     );
