@@ -36,7 +36,9 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
     useEffect(() => {
         setIsPrintMode(typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('print') === 'true');
         // Connect websocket
-        const socket = io(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}`);
+        const socket = io(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}`, {
+            transports: ['polling', 'websocket']
+        });
 
         // Fetch initial state in case job is already running or complete
         fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/audit/${jobId}`)
@@ -419,7 +421,7 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
                         />
                         <div className="mt-4">
                             <AuditScore 
-                                score={results.performanceScore || 0} 
+                                score={performanceScore || 0} 
                                 label="Performance"
                             />
                         </div>
@@ -747,7 +749,7 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
                                                     <div className="text-[10px] text-blue-400 font-black uppercase tracking-tighter">Your Site</div>
                                                 </td>
                                                 <td className="p-6 font-black text-2xl">{Math.round(score || 0)}</td>
-                                                <td className="p-6 font-black text-2xl text-emerald-400">{results.performanceScore || 0}</td>
+                                                <td className="p-6 font-black text-2xl text-emerald-400">{performanceScore || 0}</td>
                                                 <td className="p-6 font-mono text-sm">{results.performanceMetrics?.lcp ? `${(results.performanceMetrics.lcp / 1000).toFixed(2)}s` : 'N/A'}</td>
                                                 <td className="p-6">
                                                     <span className="px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded-md text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">Original</span>
@@ -766,7 +768,7 @@ export default function AuditResults({ params }: { params: { jobId: string } }) 
                                                         <div className="text-[10px] text-purple-400 font-black uppercase tracking-tighter">Competitor</div>
                                                     </td>
                                                     <td className="p-6 font-black text-2xl text-slate-400">{(comp.score === 0 || comp.score) ? comp.score : '--'}</td>
-                                                    <td className="p-6 font-black text-2xl text-slate-400">{(comp.performanceScore === 0 || comp.performanceScore) ? comp.performanceScore : '--'}</td>
+                                                    <td className="p-6 font-black text-2xl text-slate-400">{(comp?.performanceScore === 0 || comp?.performanceScore) ? comp.performanceScore : '--'}</td>
                                                     <td className="p-6 font-mono text-sm text-slate-400">{comp.lcp ? `${(comp.lcp / 1000).toFixed(2)}s` : '--'}</td>
                                                     <td className="p-6">
                                                         <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border ${
