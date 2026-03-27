@@ -22,6 +22,8 @@ export default function ProjectsPage() {
     const [newName, setNewName] = useState('');
     const [newDesc, setNewDesc] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         if (session) fetchProjects();
@@ -57,12 +59,19 @@ export default function ProjectsPage() {
         finally { setIsSubmitting(false); }
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('Delete this project? Audits will move to unorganized.')) return;
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/projects/${id}`, {
-            method: 'DELETE', headers: { 'Authorization': `Bearer ${(session as any)?.accessToken}` }
-        });
-        if (res.ok) setProjects(projects.filter(p => p.id !== id));
+    const handleDelete = async () => {
+        if (!confirmDeleteId) return;
+        setIsDeleting(true);
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/projects/${confirmDeleteId}`, {
+                method: 'DELETE', headers: { 'Authorization': `Bearer ${(session as any)?.accessToken}` }
+            });
+            if (res.ok) {
+                setProjects(projects.filter(p => p.id !== confirmDeleteId));
+                setConfirmDeleteId(null);
+            }
+        } catch { alert('Failed to delete project.'); }
+        finally { setIsDeleting(false); }
     };
 
     // Pastel project avatar colors
@@ -134,7 +143,7 @@ export default function ProjectsPage() {
                             <div key={project.id} className="group bg-slate-900/50 border border-white/[0.05] rounded-2xl p-5 hover:border-emerald-500/25 hover:bg-slate-900/80 transition-all flex flex-col relative">
                                 {/* Delete on hover */}
                                 <button
-                                    onClick={() => handleDelete(project.id)}
+                                    onClick={() => setConfirmDeleteId(project.id)}
                                     className="absolute top-4 right-4 p-1.5 text-slate-700 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
                                 >
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -232,6 +241,35 @@ export default function ProjectsPage() {
                                 ) : 'Create Project'}
                             </button>
                         </form>
+                    </div>
+                </div>
+            )}
+            {/* Delete Confirm Modal */}
+            {confirmDeleteId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                    <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-sm w-full shadow-2xl relative overflow-hidden text-white">
+                        <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/10 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2"></div>
+                        <div className="relative z-10 flex flex-col items-center text-center gap-5">
+                            <div className="w-14 h-14 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center justify-center text-red-400">
+                                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-white mb-1">Delete Project?</h3>
+                                <p className="text-slate-500 text-sm">All associated audit data will be moved to unorganized. This cannot be undone.</p>
+                            </div>
+                            <div className="flex gap-3 w-full font-bold text-sm uppercase tracking-widest">
+                                <button onClick={() => setConfirmDeleteId(null)} className="flex-1 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white transition-colors">Abort</button>
+                                <button
+                                    onClick={handleDelete}
+                                    disabled={isDeleting}
+                                    className="flex-1 py-3.5 rounded-xl bg-red-500 hover:bg-red-600 text-white transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    {isDeleting ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Confirm'}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}

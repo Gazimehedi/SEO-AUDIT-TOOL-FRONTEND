@@ -24,6 +24,8 @@ export default function MonitoringPage() {
     const [projects, setProjects] = useState<any[]>([]);
     const [selectedProjectId, setSelectedProjectId] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         if (session) {
@@ -62,12 +64,19 @@ export default function MonitoringPage() {
         finally { setIsSubmitting(false); }
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('Stop monitoring this site?')) return;
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/monitoring/${id}`, {
-            method: 'DELETE', headers: { 'Authorization': `Bearer ${(session as any)?.accessToken}` }
-        });
-        if (res.ok) setSites(sites.filter(s => s.id !== id));
+    const handleDelete = async () => {
+        if (!confirmDeleteId) return;
+        setIsDeleting(true);
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/monitoring/${confirmDeleteId}`, {
+                method: 'DELETE', headers: { 'Authorization': `Bearer ${(session as any)?.accessToken}` }
+            });
+            if (res.ok) {
+                setSites(sites.filter(s => s.id !== confirmDeleteId));
+                setConfirmDeleteId(null);
+            }
+        } catch { alert('Failed to delete site.'); }
+        finally { setIsDeleting(false); }
     };
 
     const handleIntervalChange = async (id: string, interval: 'daily' | 'weekly') => {
@@ -261,7 +270,7 @@ export default function MonitoringPage() {
                                             {/* Action Float */}
                                             <div className="absolute top-6 right-6 z-20 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-1 group-hover:translate-y-0">
                                                 <button 
-                                                    onClick={() => handleDelete(site.id)}
+                                                    onClick={() => setConfirmDeleteId(site.id)}
                                                     className="w-9 h-9 bg-rose-500 rounded-xl flex items-center justify-center text-white hover:scale-110 active:scale-95 transition-all outline-none shadow-lg"
                                                 >
                                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -356,6 +365,35 @@ export default function MonitoringPage() {
                     </div>
                 </div>
             </main>
+            {/* Delete Confirm Modal */}
+            {confirmDeleteId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                    <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-sm w-full shadow-2xl relative overflow-hidden text-slate-100">
+                        <div className="absolute top-0 right-0 w-48 h-48 bg-rose-500/10 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2"></div>
+                        <div className="relative z-10 flex flex-col items-center text-center gap-5">
+                            <div className="w-14 h-14 bg-rose-500/10 border border-rose-500/20 rounded-2xl flex items-center justify-center text-rose-400">
+                                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-white mb-1 tracking-tight">Stop Monitoring?</h3>
+                                <p className="text-slate-500 text-sm">Telemetry will be terminated for this node. This action cannot be reversed.</p>
+                            </div>
+                            <div className="flex gap-3 w-full uppercase tracking-widest text-[10px] font-black">
+                                <button onClick={() => setConfirmDeleteId(null)} className="flex-1 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors">Abort</button>
+                                <button
+                                    onClick={handleDelete}
+                                    disabled={isDeleting}
+                                    className="flex-1 py-3.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    {isDeleting ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Confirm'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
